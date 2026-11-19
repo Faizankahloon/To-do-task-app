@@ -23,7 +23,7 @@ export default function Header() {
         greeting = "Evening"
     }
     
-    const {allTasks, setAllTasks, searchTask, setSearchTasks} = useContext(sideBarFilteringTasks);
+    const {allTasks, setAllTasks, searchTask, setSearchTasks, userName} = useContext(sideBarFilteringTasks);
         allTasks.filter((task) => task.title === searchTask);
         allTasks.filter((task) => task.category === searchTask);
         allTasks.filter((task) => task.priority === searchTask)
@@ -44,7 +44,7 @@ export default function Header() {
             {day}, {formattedDate}
           </p>
           <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">
-            Good {greeting}, Faizan 👋
+            Good {greeting}, {userName || "there"} 👋
           </h2>
           <p className="mt-2 text-sm text-slate-500">
             Here's what's happening with your tasks today.
@@ -74,9 +74,9 @@ export default function Header() {
         <button
           type="button"
           aria-label="Open profile"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-100 font-bold text-indigo-700"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-600 font-bold text-[#f1f1f1] px-5"
         >
-          F
+          {userName ? userName.trim().charAt(0).toUpperCase() : "?"}
         </button>
       </div>
     </header>

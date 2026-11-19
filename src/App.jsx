@@ -5,43 +5,32 @@ import { useEffect, useState } from "react";
 import { formContext } from "./context/FormContext";
 import { sideBarFilteringTasks } from "./context/TaskContext";
 import TaskForm from "./components/TaskForm";
+import NamePrompt from "./components/NamePrompt";
 import { tasks } from "./data/tasks";
 
 export default function App() {
   // Controls TaskForm visibility
   const [showTaskForm, setShowTaskForm] = useState(false);
 
+  // Loads the user's name from localStorage (null until they enter one)
+  const [userName, setUserName] = useState(() => {
+    try {
+      return localStorage.getItem("userName") || null;
+    } catch (error) {
+      console.error("Error loading user name:", error);
+      return null;
+    }
+  });
+
   const [searchTask, setSearchTasks] = useState("");
 
   // Stores all tasks and loads saved tasks from localStorage
   const [allTasks, setAllTasks] = useState(() => {
     try {
-      const savedTasks = localStorage.getItem("tasks");
-
-      if (savedTasks !== null) {
-        const parsedTasks = JSON.parse(savedTasks);
-
-        if (Array.isArray(parsedTasks)) {
-          // Merge original tasks with saved tasks.
-          // Saved tasks take priority if IDs are identical.
-          const mergedTasks = new Map();
-
-          tasks.forEach((task) => {
-            mergedTasks.set(task.id, task);
-          });
-
-          parsedTasks.forEach((task) => {
-            mergedTasks.set(task.id, task);
-          });
-
-          return Array.from(mergedTasks.values());
-        }
-      }
-
-      return tasks;
-    } catch (error) {
-      console.error("Error loading tasks:", error);
-      return tasks;
+      const savedTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+      return Array.isArray(savedTasks) ? savedTasks : [];
+    } catch (error){
+      return [];
     }
   });
 
@@ -51,12 +40,17 @@ export default function App() {
   // Controls TaskList filters
   const [selectedFilter, setSelectedFilter] = useState("all");
 
-  
-
   // Saves tasks whenever allTasks changes
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(allTasks));
   }, [allTasks]);
+
+  // Saves the user's name whenever it changes
+  useEffect(() => {
+    if (userName) {
+      localStorage.setItem("userName", userName);
+    }
+  }, [userName]);
 
   return (
     <formContext.Provider
@@ -75,6 +69,8 @@ export default function App() {
           setSelectedFilter,
           searchTask,
           setSearchTasks,
+          userName,
+          setUserName,
         }}
       >
         <div className="flex min-h-screen">
@@ -93,6 +89,8 @@ export default function App() {
         </div>
 
         {showTaskForm && <TaskForm />}
+
+        {!userName && <NamePrompt />}
       </sideBarFilteringTasks.Provider>
     </formContext.Provider>
   );
